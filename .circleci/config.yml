@@ -1,0 +1,45 @@
+defaults: &defaults
+  working_directory: ~/app
+  docker:
+    - image: nikengp/node6:v0.4
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+
+      
+      - run:
+          name: NPM Install
+          command: npm i
+      
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - app
+  deploy: 
+    <<: *defaults
+    steps: 
+      - attach_workspace:
+          at: ~/
+      
+
+workflows:
+  version: 2
+  build-n-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
