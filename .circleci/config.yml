@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/app
   docker:
-    - image: nikengp/node6:v0.4
+    - image: nikengp/node8:v0.4
 version: 2
 jobs:
   build:
@@ -18,12 +18,6 @@ jobs:
 
 workflows:
   version: 2
-  build-n-deploy:
+  build:
     jobs:
       - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
