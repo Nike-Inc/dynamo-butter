@@ -23,21 +23,13 @@ After you have that setup, just install from npm normally.
 
 ```javascript
 const Butter = require('@nike/dynamo-butter')
-const client = Butter.up()
+const client = Butter.up({ region: 'us-west-2' })
 const data = await client.scanAll({ TableName: 'some-table' })
 ```
 
 ## API
 
 **dynamo-butter** exports one method: `up()`. Which can be used in 3 different modes. The first parameter depends on the mode, while the second parameter provides config options to dynamo-butter.
-
-### Default Mode
-```javascript
-const Butter = require('@nike/dynamo-butter')
-const client = Butter.up()
-```
-
-Uses the recommended defaults: promisify methods, adds Quality-of-Life (QoL) methods, and enables keep alive.
 
 ### Configuration-Passthrough Mode
 ```javascript

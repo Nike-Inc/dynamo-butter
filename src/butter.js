@@ -10,7 +10,7 @@ module.exports = {
 
 function up (dynamoClientOrConfig, { includeAutoPagingMethods = true, useKeepAlive = true } = {}) {
   let client
-  if (!dynamoClientOrConfig) throw new Error('"dynamoClientOrConfig" parameter is rqeuired')
+  if (!dynamoClientOrConfig) throw new Error('"dynamoClientOrConfig" parameter is required')
 
   // dynamo methods mean this is a document client
   if (isFunction(dynamoClientOrConfig.query)) {

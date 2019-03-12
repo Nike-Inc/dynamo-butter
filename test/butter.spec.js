@@ -54,6 +54,16 @@ test('butter.up defaults to dynamo https', async t => {
   t.equal(client.service.endpoint.href, 'https://dynamodb.us-west-2.amazonaws.com/', 'endpoint')
 })
 
+test('butter.up requires config', async t => {
+  t.plan(1)
+  t.throws(() => Butter.up(), /dynamoClientOrConfig.+?required/)
+})
+
+test('butter.up requires region', async t => {
+  t.plan(1)
+  t.throws(() => Butter.up({}), /region/)
+})
+
 // QoL Methods
 //
 test('batchWriteAll sends 30 items in two pages', async t => {
