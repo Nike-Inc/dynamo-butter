@@ -8,7 +8,7 @@ dynamo-butter
 Since AWS Lambda provides `aws-sdk` by default, this library does not declare a dependency on it. However, it is required. If you need to run unit tests, make sure to add `aws-sdk` to your own `devDepdendencies`.
 
 ## Installation
-Chronicle is published to Nike's internal Atrificatory npm registry. To install from it you will need an `.npmrc` file in your project
+This package is published to Nike's internal Atrificatory npm registry. To install from it you will need an `.npmrc` file in your project
 
 ```
 registry=http://artifactory.nike.com/artifactory/api/npm/npm-nike
@@ -18,6 +18,10 @@ registry=http://artifactory.nike.com/artifactory/api/npm/npm-nike
 The first line is technically optional, since the scope is all you need to get `@nike/` scoped packages. However it is recommended as additional caching and security analysis is done on packages in our Artifactory registry.
 
 After you have that setup, just install from npm normally.
+
+```
+npm i @nike/dynamo-butter
+```
 
 ## Quick Start
 
