@@ -29,21 +29,23 @@ const data = await client.scanAll({ TableName: 'some-table' })
 
 ## API
 
-**dynamo-butter** exports one method: `up()`. Which can be used in 3 different modes. The first parameter depends on the mode, while the second parameter provides config options to dynamo-butter.
+**dynamo-butter** exports one method: `up()`. Which can be used in two different modes. The first parameter depends on the mode, while the second parameter provides config options to dynamo-butter.
 
 ### Configuration-Passthrough Mode
+Uses the recommended defaults, with a configuration object that is passed to the DynamoDB **DocumentClient** constructor.
+
 ```javascript
 const Butter = require('@nike/dynamo-butter')
 const client = Butter.up({
   region: 'us-west-2',
-  endpoint: IS_TESTING ? TEST_SERVER : undefined,
+  endpoint: IS_TESTING && TEST_SERVER_ENDPOINT,
   convertEmptyValues: true // optional, defaults to true
 })
 ```
 
-Uses the recommended defaults, with a configuration object that is passed to the DynamoDB **DocumentClient** constructor.
-
 ### Client-Wrap Mode
+If you want to configure the DynamoDB DocumentClient yourself, you can pass it to butter instead of a config object.
+
 ```javascript
 const Butter = require('@nike/dynamo-butter')
 const Dynamo = require('aws-sdk/clients/dynamodb')
@@ -57,8 +59,6 @@ const dynamo = new Dynamo.DocumentClient({
 })
 const client = Butter.up(dynamo)
 ```
-
-If you want to configure the DynamoDB DocumentClient yourself, you can pass it to butter instead of a config object.
 
 #### Config Options
 The second parameter to `Butter.up()` is an options object for butter. It is optional, and each property is optional and defaults to true.
