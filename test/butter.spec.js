@@ -1,4 +1,8 @@
+
 'use strict'
+
+process.env.AWS_ACCESS_KEY = 'test'
+process.env.AWS_SECRET_KEY = 'test'
 
 const test = require('blue-tape')
 const nock = require('nock')
@@ -10,7 +14,6 @@ let validConfig = {
   region: 'us-west-2',
   endpoint: 'http://localhost:4567/'
 }
-const dynamoHeaders = { 'content-type': 'application/x-amz-json-1.0' }
 const table = 'test-table'
 
 test('butter.up provides a wrapped client when config is valid', async t => {
