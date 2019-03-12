@@ -13,17 +13,8 @@ jobs:
           command: npm ci
       - run:
           name: Tests
-          command: npm test:ci
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - app
-  deploy: 
-    <<: *defaults
-    steps: 
-      - attach_workspace:
-          at: ~/
-      
+          command: npm run test:ci
+
 
 workflows:
   version: 2
