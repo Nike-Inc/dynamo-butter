@@ -1,38 +1,45 @@
 {
-  "name": "dynamo-butter",
+  "name": "@nike/dynamo-butter",
   "description": "A dynamo client enhancer",
+  "author": "Tim Kye",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
   "scripts": {
-    "test:coverage": "nyc --check-coverage --lines 90 npm run test:unit && npm run report",
-    "test": "npm run style && npm run test:unit && npm run test:int",
+    "test": "npm run style && npm run test:unit",
     "test:unit": "blue-tape \"test/**/**.spec.js\" | tap-spec",
-    "test:unit:watch": "npm run test:unit -s & chokidar 'src/**/*.js' 'test/**/*.spec.js' --polling -c \"npm run test:unit -s\"",
-    "test:int": "blue-tape test/**/**.int.js | tap-spec",
-    "test:int:watch": "npm run test:int -s & chokidar 'src/**/*.js' 'test/**/*.int.js' --polling -c \"npm run test:int -s\"",
-    "test:watch": "npm run test:coverage -s & chokidar 'src/**/*.js' 'test/**/*.spec.js' --polling -c \"npm run test:coverage -s\"",
+    "test:watch": "clear && npm run test:unit -s & chokidar 'src/**/*.js' 'test/**/*.spec.js' --polling -c \"clear && npm run test:unit -s\"",
     "test:ci": "npm run style && blue-tape test/**/**.spec.js | tap-xunit > xunit.xml && blue-tape test/**/**.int.js | tap-xunit > xunit.xml && npm run test:coverage && npm run report:ci",
+    "test:coverage": "nyc --check-coverage --lines 90 npm run test:unit && npm run report",
+    "test:coverage:open": "npm run test:coverage && open coverage/index.html",
     "report": "nyc report --reporter=html",
     "report:ci": "npm run report",
     "report:open": "npm run report && open coverage/index.html",
     "style": "standard \\\"src/**/*.js\\\" | snazzy",
     "style:fix": "standard \\\"src/**/*.js\\\" --fix"
   },
+  "main": "src/butter.js",
+  "files": [
+    "src"
+  ],
+  "engines": {
+    "node": ">=8"
+  },
   "dependencies": {},
   "devDependencies": {
+    "aws-sdk": "^2.419.0",
+    "babel-eslint": "^7.2.3",
     "blue-tape": "^0.2.0",
     "chokidar-cli": "^1.2.0",
+    "nock": "^10.0.6",
     "nyc": "^11.0.2",
     "sinon": "^6.0.0",
     "snazzy": "^7.0.0",
-    "standard": "^10.0.3",
+    "standard": "^12.0.1",
     "tap-spec": "^4.1.1",
-    "tap-xunit": "^2.3.0",
-    "babel-eslint": "^7.2.3"
+    "tap-xunit": "^2.3.0"
   },
   "peerDependencies": {},
   "standard": {
     "parser": "babel-eslint"
-  },
-  "author": "Tim Kye",
-  "version": "0.1.0",
-  "license": "Apache-2.0"
+  }
 }
