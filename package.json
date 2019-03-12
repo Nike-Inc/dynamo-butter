@@ -8,7 +8,7 @@
     "test": "npm run style && npm run test:unit",
     "test:unit": "blue-tape \"test/**/**.spec.js\" | tap-spec",
     "test:watch": "clear && npm run test:unit -s & chokidar 'src/**/*.js' 'test/**/*.spec.js' --polling -c \"clear && npm run test:unit -s\"",
-    "test:ci": "npm run style && blue-tape test/**/**.spec.js | tap-xunit > xunit.xml && blue-tape test/**/**.int.js | tap-xunit > xunit.xml && npm run test:coverage && npm run report:ci",
+    "test:ci": "npm run style && blue-tape test/**/**.spec.js | tap-xunit > xunit.xml && npm run test:coverage && npm run report:ci",
     "test:coverage": "nyc --check-coverage --lines 90 npm run test:unit && npm run report",
     "test:coverage:open": "npm run test:coverage && open coverage/index.html",
     "report": "nyc report --reporter=html",

@@ -1,8 +1,8 @@
 
 'use strict'
 
-process.env.AWS_ACCESS_KEY = 'test'
-process.env.AWS_SECRET_KEY = 'test'
+process.env.AWS_ACCESS_KEY_ID = 'FAKE_KEY_ID'
+process.env.AWS_SECRET_ACCESS_KEY = 'FAKE_KEY'
 
 const test = require('blue-tape')
 const nock = require('nock')
