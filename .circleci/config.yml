@@ -8,19 +8,12 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-
-      
       - run:
           name: NPM Install
-          command: npm i
-      
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      
+          command: npm ci
+      - run:
+          name: Tests
+          command: npm test:ci
       - persist_to_workspace:
           root: ~/
           paths:
