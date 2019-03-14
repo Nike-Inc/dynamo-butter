@@ -165,9 +165,7 @@ function sliceGetBatch (pool, pageSize) {
 }
 
 function eachObj (obj, func) {
-  Object.keys(obj).forEach(key => {
-    func(key, obj[key])
-  })
+  Object.entries(obj).forEach(([key, val]) => func(key, val))
 }
 
 function isFunction (func) {
