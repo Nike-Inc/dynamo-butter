@@ -62,7 +62,7 @@ The second parameter to `Butter.up()` is an options object for butter. It is opt
 ```javascript
 const client = Butter.up({
   region: 'us-west-2',
-  endpoint: IS_TESTING ? TEST_SERVER : undefined,
+  endpoint: IS_TESTING && TEST_SERVER_ENDPOINT,
   convertEmptyValues: true // optional, defaults to true
 }, {
   includeAutoPagingMethods: true,
