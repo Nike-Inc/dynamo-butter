@@ -1,5 +1,5 @@
 {
-  "name": "@nike/dynamo-butter",
+  "name": "dynamo-butter",
   "description": "A dynamo client enhancer",
   "author": "Tim Kye",
   "version": "0.1.2",

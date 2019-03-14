@@ -8,25 +8,14 @@ dynamo-butter
 Since AWS Lambda provides `aws-sdk` by default, this library does not declare a dependency on it. However, it is required. If you need to run unit tests, make sure to add `aws-sdk` to your own `devDepdendencies`.
 
 ## Installation
-This package is published to Nike's internal Atrificatory npm registry. To install from it you will need an `.npmrc` file in your project
-
 ```
-registry=http://artifactory.nike.com/artifactory/api/npm/npm-nike
-@nike:registry=http://artifactory.nike.com/artifactory/api/npm/npm-nike/
-```
-
-The first line is technically optional, since the scope is all you need to get `@nike/` scoped packages. However it is recommended as additional caching and security analysis is done on packages in our Artifactory registry.
-
-After you have that setup, just install from npm normally.
-
-```
-npm i @nike/dynamo-butter
+npm i dynamo-butter
 ```
 
 ## Quick Start
 
 ```javascript
-const Butter = require('@nike/dynamo-butter')
+const Butter = require('dynamo-butter')
 const client = Butter.up({ region: 'us-west-2' })
 const data = await client.scanAll({ TableName: 'some-table' })
 ```
@@ -39,7 +28,7 @@ const data = await client.scanAll({ TableName: 'some-table' })
 Uses the recommended defaults, with a configuration object that is passed to the DynamoDB **DocumentClient** constructor.
 
 ```javascript
-const Butter = require('@nike/dynamo-butter')
+const Butter = require('dynamo-butter')
 const client = Butter.up({
   region: 'us-west-2',
   endpoint: IS_TESTING && TEST_SERVER_ENDPOINT,
@@ -51,7 +40,7 @@ const client = Butter.up({
 If you want to configure the DynamoDB DocumentClient yourself, you can pass it to butter instead of a config object.
 
 ```javascript
-const Butter = require('@nike/dynamo-butter')
+const Butter = require('dynamo-butter')
 const Dynamo = require('aws-sdk/clients/dynamodb')
 const dynamo = new Dynamo.DocumentClient({
   convertEmptyValues,
