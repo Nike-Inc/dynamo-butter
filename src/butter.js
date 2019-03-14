@@ -171,5 +171,5 @@ function eachObj (obj, func) {
 }
 
 function isFunction (func) {
-  return func && typeof func === 'function'
+  return typeof func === 'function'
 }
