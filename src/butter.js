@@ -25,6 +25,7 @@ function up (dynamoClientOrConfig, { includeAutoPagingMethods = true, useKeepAli
   })
 
   if (includeAutoPagingMethods) {
+    client.queryAll = queryAll.bind(null, client)
     client.scanAll = scanAll.bind(null, client)
     client.batchWriteAll = batchWriteAll.bind(null, client)
     client.batchGetAll = batchGetAll.bind(null, client)
@@ -57,6 +58,35 @@ function makeClient ({ region, endpoint, convertEmptyValues = true, useKeepAlive
     convertEmptyValues,
     service: dynamo
   })
+}
+
+async function queryAll (dynamoClient, params) {
+  params = { ...params }
+  let result
+  let queryLimit = params.QueryLimit
+  let itemLimit = params.ItemLimit
+  delete params.QueryLimit
+  delete params.ItemLimit
+
+  let response = {}
+  let workRemaining
+  do {
+    response = await dynamoClient.query({ ...params, ExclusiveStartKey: response.LastEvaluatedKey })
+    // First run
+    if (result === undefined) {
+      result = response
+    } else {
+      result.Count += response.Count
+      result.ScannedCount += response.ScannedCount
+      result.Items = result.Items.concat(response.Items)
+    }
+    workRemaining = response.LastEvaluatedKey &&
+      (queryLimit === undefined || result.ScannedCount < queryLimit) &&
+      (itemLimit === undefined || result.Count < itemLimit)
+  } while (workRemaining)
+
+  delete result.LastEvaluatedKey
+  return result
 }
 
 async function scanAll (dynamoClient, params) {
