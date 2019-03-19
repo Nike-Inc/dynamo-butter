@@ -277,6 +277,38 @@ test('batchGetAll retries unprocessed items', async t => {
   })
 })
 
+test('queryAll gets multiple pages', async t => {
+  t.plan(4)
+  let client = Butter.up(validConfig)
+  let data = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
+  nock(/localhost/)
+    .replyContentLength()
+    .post('/')
+    .reply(200, function (uri, requestBody) {
+      t.pass('called')
+      return [200, {
+        Count: 2,
+        ScannedCount: 100,
+        LastEvaluatedKey: { id: 2 },
+        Items: data.slice(0, 2).map(awsConverter.marshall)
+      }]
+    })
+  nock(/localhost/)
+    .replyContentLength()
+    .post('/')
+    .reply(200, function (uri, requestBody) {
+      t.pass('called')
+      return [200, {
+        Count: 2,
+        ScannedCount: 100,
+        Items: data.slice(2).map(awsConverter.marshall)
+      }]
+    })
+  let result = await client.queryAll({ TableName: table })
+  t.equal(result.Items.length, 4, 'count')
+  t.same(result.Items, data, 'matches')
+})
+
 test('scanAll gets multiple pages', async t => {
   t.plan(4)
   let client = Butter.up(validConfig)

@@ -67,7 +67,7 @@ const client = Butter.up(dynamo)
 #### Config Options
 The second parameter to `Butter.up()` is an options object for butter. It is optional, and each property is optional and defaults to true.
 
-* **includeAutoPagingMethods**: set to `false` to not add `batchWriteAll` `batchGetAll` and `scanAll` to the client.
+* **includeAutoPagingMethods**: set to `false` to not add `batchWriteAll` `batchGetAll` `queryAll` and `scanAll` to the client.
 * **useKeepAlive**: set to false to disable `keepAlive` on the configured agent.
 
 ```javascript
