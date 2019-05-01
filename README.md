@@ -46,8 +46,7 @@ const dynamo = new Dynamo.DocumentClient({
   convertEmptyValues,
   service: new Dynamo({
     region,
-    endpoint,
-    httpOptions: { agent }
+    endpoint
   })
 })
 const client = Butter.up(dynamo)
