@@ -1,5 +1,5 @@
 {
-  "name": "@nike/dynamo-butter",
+  "name": "dynamo-butter",
   "description": "A dynamo client enhancer",
   "author": "Tim Kye",
   "version": "0.2.0",
@@ -21,6 +21,10 @@
   "files": [
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Nike-Inc/dynamo-butter.git"
+  },
   "engines": {
     "node": ">=8"
   },
