@@ -79,6 +79,7 @@ async function queryAll (dynamoClient, params) {
       result.Count += response.Count
       result.ScannedCount += response.ScannedCount
       result.Items = result.Items.concat(response.Items)
+      result.LastEvaluatedKey = response.LastEvaluatedKey
     }
     workRemaining = response.LastEvaluatedKey &&
       (queryLimit === undefined || result.ScannedCount < queryLimit) &&
@@ -107,6 +108,7 @@ async function scanAll (dynamoClient, params) {
       result.Count += response.Count
       result.ScannedCount += response.ScannedCount
       result.Items = result.Items.concat(response.Items)
+      result.LastEvaluatedKey = response.LastEvaluatedKey
     }
     workRemaining = response.LastEvaluatedKey &&
       (scanLimit === undefined || result.ScannedCount < scanLimit) &&
