@@ -85,7 +85,6 @@ async function queryAll (dynamoClient, params) {
       (itemLimit === undefined || result.Count < itemLimit)
   } while (workRemaining)
 
-  delete result.LastEvaluatedKey
   return result
 }
 
@@ -114,7 +113,6 @@ async function scanAll (dynamoClient, params) {
       (itemLimit === undefined || result.Count < itemLimit)
   } while (workRemaining)
 
-  delete result.LastEvaluatedKey
   return result
 }
 
