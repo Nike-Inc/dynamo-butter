@@ -1,22 +1,38 @@
 'use strict'
 
 const { promisify } = require('util')
-const methodsToWrap = [ 'query', 'scan', 'get', 'put', 'update', 'delete', 'batchGet', 'batchWrite' ]
+const methodsToWrap = [
+  'query',
+  'scan',
+  'get',
+  'put',
+  'update',
+  'delete',
+  'batchGet',
+  'batchWrite'
+]
 
 module.exports = {
   up,
   churn: up // alias
 }
 
-function up (dynamoClientOrConfig, { includeAutoPagingMethods = true, useKeepAlive = true } = {}) {
+function up(
+  dynamoClientOrConfig,
+  { includeAutoPagingMethods = true, useKeepAlive = true } = {}
+) {
   let client
-  if (!dynamoClientOrConfig) throw new Error('"dynamoClientOrConfig" parameter is required')
+  if (!dynamoClientOrConfig)
+    throw new Error('"dynamoClientOrConfig" parameter is required')
 
   // dynamo methods mean this is a document client
   if (isFunction(dynamoClientOrConfig.query)) {
     client = dynamoClientOrConfig
   } else {
-    if (!dynamoClientOrConfig.region) throw new Error('"region" is required when providing a configuration parameter')
+    if (!dynamoClientOrConfig.region)
+      throw new Error(
+        '"region" is required when providing a configuration parameter'
+      )
     client = makeClient({ ...dynamoClientOrConfig, useKeepAlive })
   }
 
@@ -34,7 +50,12 @@ function up (dynamoClientOrConfig, { includeAutoPagingMethods = true, useKeepAli
   return client
 }
 
-function makeClient ({ region, endpoint, convertEmptyValues = true, useKeepAlive }) {
+function makeClient({
+  region,
+  endpoint,
+  convertEmptyValues = true,
+  useKeepAlive
+}) {
   const Dynamo = require('aws-sdk/clients/dynamodb')
   let agent
   let agentConfig = {
@@ -60,7 +81,7 @@ function makeClient ({ region, endpoint, convertEmptyValues = true, useKeepAlive
   })
 }
 
-async function queryAll (dynamoClient, params) {
+async function queryAll(dynamoClient, params) {
   params = { ...params }
   let result
   let queryLimit = params.QueryLimit
@@ -71,7 +92,10 @@ async function queryAll (dynamoClient, params) {
   let response = {}
   let workRemaining
   do {
-    response = await dynamoClient.query({ ...params, ExclusiveStartKey: response.LastEvaluatedKey })
+    response = await dynamoClient.query({
+      ...params,
+      ExclusiveStartKey: response.LastEvaluatedKey
+    })
     // First run
     if (result === undefined) {
       result = response
@@ -81,7 +105,8 @@ async function queryAll (dynamoClient, params) {
       result.Items = result.Items.concat(response.Items)
       result.LastEvaluatedKey = response.LastEvaluatedKey
     }
-    workRemaining = response.LastEvaluatedKey &&
+    workRemaining =
+      response.LastEvaluatedKey &&
       (queryLimit === undefined || result.ScannedCount < queryLimit) &&
       (itemLimit === undefined || result.Count < itemLimit)
   } while (workRemaining)
@@ -89,7 +114,7 @@ async function queryAll (dynamoClient, params) {
   return result
 }
 
-async function scanAll (dynamoClient, params) {
+async function scanAll(dynamoClient, params) {
   params = { ...params }
   let result
   let scanLimit = params.ScanLimit
@@ -100,7 +125,10 @@ async function scanAll (dynamoClient, params) {
   let response = {}
   let workRemaining
   do {
-    response = await dynamoClient.scan({ ...params, ExclusiveStartKey: response.LastEvaluatedKey })
+    response = await dynamoClient.scan({
+      ...params,
+      ExclusiveStartKey: response.LastEvaluatedKey
+    })
     // First run
     if (result === undefined) {
       result = response
@@ -110,7 +138,8 @@ async function scanAll (dynamoClient, params) {
       result.Items = result.Items.concat(response.Items)
       result.LastEvaluatedKey = response.LastEvaluatedKey
     }
-    workRemaining = response.LastEvaluatedKey &&
+    workRemaining =
+      response.LastEvaluatedKey &&
       (scanLimit === undefined || result.ScannedCount < scanLimit) &&
       (itemLimit === undefined || result.Count < itemLimit)
   } while (workRemaining)
@@ -118,7 +147,7 @@ async function scanAll (dynamoClient, params) {
   return result
 }
 
-async function batchWriteAll (dynamoClient, params) {
+async function batchWriteAll(dynamoClient, params) {
   let requestPool = Object.assign({}, params.RequestItems)
   let pageSize = params.PageSize
   delete params.PageSize
@@ -126,8 +155,15 @@ async function batchWriteAll (dynamoClient, params) {
   while (true) {
     let batch = sliceWriteBatch(requestPool, pageSize)
     if (batch === undefined || Object.keys(batch).length === 0) return
-    let response = await dynamoClient.batchWrite({ ...params, RequestItems: batch })
-    let unprocessed = response.UnprocessedItems && Object.keys(response.UnprocessedItems).length !== 0 ? response.UnprocessedItems : null
+    let response = await dynamoClient.batchWrite({
+      ...params,
+      RequestItems: batch
+    })
+    let unprocessed =
+      response.UnprocessedItems &&
+      Object.keys(response.UnprocessedItems).length !== 0
+        ? response.UnprocessedItems
+        : null
     if (!unprocessed) continue
     eachObj(unprocessed, (table, items) => {
       requestPool[table] = requestPool[table].concat(items)
@@ -135,24 +171,25 @@ async function batchWriteAll (dynamoClient, params) {
   }
 }
 
-function sliceWriteBatch (pool, pageSize) {
+function sliceWriteBatch(pool, pageSize) {
   pageSize = pageSize || 25
   let requestCount = 0
   let batch = {}
   let tables = Object.keys(pool)
   if (tables.length === 0) return
-  tables.forEach((tableName, i) => {
+  tables.forEach(tableName => {
     let table = pool[tableName]
     if (requestCount === pageSize || !table.length) return
     let items = table.splice(0, pageSize - requestCount)
     if (items.length === 0) return
     requestCount += items.length
-    batch[tableName] = batch[tableName] !== undefined ? batch[tableName].concat(items) : items
+    batch[tableName] =
+      batch[tableName] !== undefined ? batch[tableName].concat(items) : items
   })
   return batch
 }
 
-async function batchGetAll (dynamoClient, params) {
+async function batchGetAll(dynamoClient, params) {
   let requestPool = Object.assign({}, params.RequestItems)
   let pageSize = params.PageSize
   delete params.PageSize
@@ -161,12 +198,19 @@ async function batchGetAll (dynamoClient, params) {
   while (true) {
     let batch = sliceGetBatch(requestPool, pageSize)
     if (batch === undefined || Object.keys(batch).length === 0) break
-    let response = await dynamoClient.batchGet({ ...params, RequestItems: batch })
+    let response = await dynamoClient.batchGet({
+      ...params,
+      RequestItems: batch
+    })
     eachObj(response.Responses, (table, items) => {
       if (!responses[table]) responses[table] = []
       responses[table] = responses[table].concat(items)
     })
-    let unprocessed = response.UnprocessedKeys && Object.keys(response.UnprocessedKeys).length !== 0 ? response.UnprocessedKeys : null
+    let unprocessed =
+      response.UnprocessedKeys &&
+      Object.keys(response.UnprocessedKeys).length !== 0
+        ? response.UnprocessedKeys
+        : null
     if (!unprocessed) continue
     eachObj(unprocessed, (table, items) => {
       requestPool[table].Keys = requestPool[table].Keys.concat(items.Keys)
@@ -176,28 +220,29 @@ async function batchGetAll (dynamoClient, params) {
   return { Responses: responses }
 }
 
-function sliceGetBatch (pool, pageSize) {
+function sliceGetBatch(pool, pageSize) {
   pageSize = pageSize || 25
   let requestCount = 0
   let batch = {}
   let tables = Object.keys(pool)
   if (tables.length === 0) return
-  tables.forEach((tableName, i) => {
+  tables.forEach(tableName => {
     let table = pool[tableName]
     if (requestCount === pageSize || !table.Keys.length) return
     let keys = table.Keys.splice(0, pageSize - requestCount)
     if (keys.length === 0) return
     requestCount += keys.length
-    if (!batch[tableName]) batch[tableName] = Object.assign({}, table, { Keys: [] })
+    if (!batch[tableName])
+      batch[tableName] = Object.assign({}, table, { Keys: [] })
     batch[tableName].Keys = batch[tableName].Keys.concat(keys)
   })
   return batch
 }
 
-function eachObj (obj, func) {
+function eachObj(obj, func) {
   Object.entries(obj).forEach(([key, val]) => func(key, val))
 }
 
-function isFunction (func) {
+function isFunction(func) {
   return typeof func === 'function'
 }

@@ -1,4 +1,4 @@
-
+/* eslint-disable no-console */
 'use strict'
 
 process.env.AWS_ACCESS_KEY_ID = 'FAKE_KEY_ID'
@@ -54,7 +54,11 @@ test('butter.up defaults to dynamo https', async t => {
   t.plan(2)
   let client = Butter.up({ region: 'us-west-2' })
   t.equal(client.service.config.region, 'us-west-2', 'region')
-  t.equal(client.service.endpoint.href, 'https://dynamodb.us-west-2.amazonaws.com/', 'endpoint')
+  t.equal(
+    client.service.endpoint.href,
+    'https://dynamodb.us-west-2.amazonaws.com/',
+    'endpoint'
+  )
 })
 
 test('butter.up requires config', async t => {
@@ -73,11 +77,13 @@ test('batchWriteAll sends 30 items in two pages', async t => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(30)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) } }
+  let deleteParams = {
+    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 25, 'page size')
       return [200, {}]
@@ -85,7 +91,7 @@ test('batchWriteAll sends 30 items in two pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 5, 'page size')
       return [200, {}]
@@ -100,12 +106,15 @@ test('batchWriteAll allows custom page size', async t => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { PageSize: 10, RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) } }
+  let deleteParams = {
+    PageSize: 10,
+    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
     .times(2)
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 10, 'page size')
       return [200, {}]
@@ -117,11 +126,16 @@ test('batchWriteAll handles multiple tables', async t => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })), [table + '2']: data.map(c => ({ PutRequest: { Item: c } })) } }
+  let deleteParams = {
+    RequestItems: {
+      [table]: data.map(c => ({ PutRequest: { Item: c } })),
+      [table + '2']: data.map(c => ({ PutRequest: { Item: c } }))
+    }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 20, 'page size')
       t.equal(body.RequestItems[table + 2].length, 5, 'page size')
@@ -130,7 +144,7 @@ test('batchWriteAll handles multiple tables', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table + 2].length, 15, 'page size')
       return [200, {}]
@@ -145,22 +159,30 @@ test('batchWriteAll retries unprocessed items', async t => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(25)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) } }
+  let deleteParams = {
+    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 25, 'page size')
-      return [200, { UnprocessedItems: { [table]: data.slice(20).map(c => ({ PutRequest: { Item: awsConverter.marshall(c) } })) } }]
+      return {
+        UnprocessedItems: {
+          [table]: data
+            .slice(20)
+            .map(c => ({ PutRequest: { Item: awsConverter.marshall(c) } }))
+        }
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 5, 'retried')
-      return [200, {}]
+      return {}
     })
   return client.batchWriteAll(deleteParams)
 })
@@ -173,48 +195,62 @@ test('batchGetAll sends 30 items in two pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 25, 'page size')
-      return [200, { Responses: { [table]: data.slice(0, 25).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table]: data.slice(0, 25).map(awsConverter.marshall) }
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 5, 'page size')
-      return [200, { Responses: { [table]: data.slice(25).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table]: data.slice(25).map(awsConverter.marshall) }
+      }
     })
 
-  return client.batchGetAll(deleteParams).then(result => {
-    t.deepEqual(data, result.Responses[table], 'returned all rows')
-  }).catch(e => {
-    console.error(e)
-    throw e
-  })
+  return client
+    .batchGetAll(deleteParams)
+    .then(result => {
+      t.deepEqual(data, result.Responses[table], 'returned all rows')
+    })
+    .catch(e => {
+      console.error(e)
+      throw e
+    })
 })
 
 test('batchGetAll allows custom page size', async t => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { PageSize: 10, RequestItems: { [table]: { Keys: data.slice(0) } } }
+  let deleteParams = {
+    PageSize: 10,
+    RequestItems: { [table]: { Keys: data.slice(0) } }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 10, 'page size')
-      return [200, { Responses: { [table]: data.slice(0, 10).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table]: data.slice(0, 10).map(awsConverter.marshall) }
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 10, 'page size')
-      return [200, { Responses: { [table]: data.slice(10).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table]: data.slice(10).map(awsConverter.marshall) }
+      }
     })
 
   return client.batchGetAll(deleteParams).then(result => {
@@ -226,23 +262,35 @@ test('batchGetAll handles multiple tables', async t => {
   t.plan(5)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
-  let deleteParams = { RequestItems: { [table]: { Keys: data.slice(0) }, [table + '2']: { Keys: data.slice(0) } } }
+  let deleteParams = {
+    RequestItems: {
+      [table]: { Keys: data.slice(0) },
+      [table + '2']: { Keys: data.slice(0) }
+    }
+  }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 20, 'page size')
       t.equal(body.RequestItems[table + 2].Keys.length, 5, 'page size')
-      return [200, { Responses: { [table]: data.slice(0).map(awsConverter.marshall), [table + '2']: data.slice(0, 5).map(awsConverter.marshall) } }]
+      return {
+        Responses: {
+          [table]: data.slice(0).map(awsConverter.marshall),
+          [table + '2']: data.slice(0, 5).map(awsConverter.marshall)
+        }
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table + 2].Keys.length, 15, 'page size')
-      return [200, { Responses: { [table + '2']: data.slice(5).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table + '2']: data.slice(5).map(awsConverter.marshall) }
+      }
     })
   return client.batchGetAll(deleteParams).then(result => {
     t.deepEqual(data, result.Responses[table], 'returned table rows')
@@ -258,19 +306,25 @@ test('batchGetAll retries unprocessed items', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 25, 'page size')
-      let response = { Responses: { [table]: data.slice(0, 20).map(awsConverter.marshall) }, UnprocessedKeys: { [table]: { Keys: data.slice(20).map(awsConverter.marshall) } } }
-      return [200, response]
+      return {
+        Responses: { [table]: data.slice(0, 20).map(awsConverter.marshall) },
+        UnprocessedKeys: {
+          [table]: { Keys: data.slice(20).map(awsConverter.marshall) }
+        }
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function(uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 5, 'retried')
-      return [200, { Responses: { [table]: data.slice(20).map(awsConverter.marshall) } }]
+      return {
+        Responses: { [table]: data.slice(20).map(awsConverter.marshall) }
+      }
     })
   return client.batchGetAll(deleteParams).then(result => {
     t.deepEqual(data, result.Responses[table], 'returned all rows')
@@ -284,25 +338,25 @@ test('queryAll gets multiple pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function() {
       t.pass('called')
-      return [200, {
+      return {
         Count: 2,
         ScannedCount: 100,
         LastEvaluatedKey: { id: 2 },
         Items: data.slice(0, 2).map(awsConverter.marshall)
-      }]
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function() {
       t.pass('called')
-      return [200, {
+      return {
         Count: 2,
         ScannedCount: 100,
         Items: data.slice(2).map(awsConverter.marshall)
-      }]
+      }
     })
   let result = await client.queryAll({ TableName: table })
   t.equal(result.Items.length, 4, 'count')
@@ -316,25 +370,25 @@ test('scanAll gets multiple pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function() {
       t.pass('called')
-      return [200, {
+      return {
         Count: 2,
         ScannedCount: 100,
         LastEvaluatedKey: { id: 2 },
         Items: data.slice(0, 2).map(awsConverter.marshall)
-      }]
+      }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function (uri, requestBody) {
+    .reply(200, function() {
       t.pass('called')
-      return [200, {
+      return {
         Count: 2,
         ScannedCount: 100,
         Items: data.slice(2).map(awsConverter.marshall)
-      }]
+      }
     })
   let result = await client.scanAll({ TableName: table })
   t.equal(result.Items.length, 4, 'count')
