@@ -32,6 +32,20 @@ test('butter.up provides a wrapped client when config is valid', async t => {
   await result
 })
 
+test('butter.up provides a wrapped client when config contains creds', async t => {
+  t.plan(1)
+  const credentials = {
+    accessKeyId: 'a1',
+    secretAccessKey: 'k1',
+    sessionToken: 'tok'
+  }
+  let client = Butter.up({
+    ...validConfig,
+    credentials
+  })
+  t.same(client.service.config.credentials, credentials, 'creds')
+})
+
 test('butter.up provides a wrapped client when given dynamo client', async t => {
   t.plan(5)
   const Dynamo = require('aws-sdk/clients/dynamodb')

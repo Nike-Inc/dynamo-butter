@@ -16,7 +16,8 @@
     "test:coverage:open": "npm run test:coverage && open coverage/index.html",
     "report": "nyc report --reporter=html",
     "report:ci": "npm run report",
-    "report:open": "npm run report && open coverage/index.html"
+    "report:open": "npm run report && open coverage/index.html",
+    "release": "np"
   },
   "main": "src/butter.js",
   "files": [
@@ -37,6 +38,7 @@
     "chokidar-cli": "^1.2.3",
     "eslint": "^5.16.0",
     "nock": "^11.8.2",
+    "np": "^6.5.0",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
     "sinon": "^8.1.1",

@@ -9,12 +9,12 @@ const methodsToWrap = [
   'update',
   'delete',
   'batchGet',
-  'batchWrite'
+  'batchWrite',
 ]
 
 module.exports = {
   up,
-  churn: up // alias
+  churn: up, // alias
 }
 
 function up(
@@ -36,7 +36,7 @@ function up(
     client = makeClient({ ...dynamoClientOrConfig, useKeepAlive })
   }
 
-  methodsToWrap.forEach(method => {
+  methodsToWrap.forEach((method) => {
     client[method] = promisify(client[method].bind(client))
   })
 
@@ -54,13 +54,14 @@ function makeClient({
   region,
   endpoint,
   convertEmptyValues = true,
-  useKeepAlive
+  useKeepAlive,
+  ...rest
 }) {
   const Dynamo = require('aws-sdk/clients/dynamodb')
   let agent
   let agentConfig = {
     keepAlive: useKeepAlive,
-    maxSockets: useKeepAlive ? 50 : undefined
+    maxSockets: useKeepAlive ? 50 : undefined,
   }
   if (endpoint && endpoint.includes('http:')) {
     const http = require('http')
@@ -71,13 +72,14 @@ function makeClient({
     agent.setMaxListeners(0)
   }
   const dynamo = new Dynamo({
+    ...rest,
     region,
     endpoint,
-    httpOptions: { agent }
+    httpOptions: { agent },
   })
   return new Dynamo.DocumentClient({
     convertEmptyValues,
-    service: dynamo
+    service: dynamo,
   })
 }
 
@@ -94,7 +96,7 @@ async function queryAll(dynamoClient, params) {
   do {
     response = await dynamoClient.query({
       ...params,
-      ExclusiveStartKey: response.LastEvaluatedKey
+      ExclusiveStartKey: response.LastEvaluatedKey,
     })
     // First run
     if (result === undefined) {
@@ -127,7 +129,7 @@ async function scanAll(dynamoClient, params) {
   do {
     response = await dynamoClient.scan({
       ...params,
-      ExclusiveStartKey: response.LastEvaluatedKey
+      ExclusiveStartKey: response.LastEvaluatedKey,
     })
     // First run
     if (result === undefined) {
@@ -157,7 +159,7 @@ async function batchWriteAll(dynamoClient, params) {
     if (batch === undefined || Object.keys(batch).length === 0) return
     let response = await dynamoClient.batchWrite({
       ...params,
-      RequestItems: batch
+      RequestItems: batch,
     })
     let unprocessed =
       response.UnprocessedItems &&
@@ -177,7 +179,7 @@ function sliceWriteBatch(pool, pageSize) {
   let batch = {}
   let tables = Object.keys(pool)
   if (tables.length === 0) return
-  tables.forEach(tableName => {
+  tables.forEach((tableName) => {
     let table = pool[tableName]
     if (requestCount === pageSize || !table.length) return
     let items = table.splice(0, pageSize - requestCount)
@@ -200,7 +202,7 @@ async function batchGetAll(dynamoClient, params) {
     if (batch === undefined || Object.keys(batch).length === 0) break
     let response = await dynamoClient.batchGet({
       ...params,
-      RequestItems: batch
+      RequestItems: batch,
     })
     eachObj(response.Responses, (table, items) => {
       if (!responses[table]) responses[table] = []
@@ -226,7 +228,7 @@ function sliceGetBatch(pool, pageSize) {
   let batch = {}
   let tables = Object.keys(pool)
   if (tables.length === 0) return
-  tables.forEach(tableName => {
+  tables.forEach((tableName) => {
     let table = pool[tableName]
     if (requestCount === pageSize || !table.Keys.length) return
     let keys = table.Keys.splice(0, pageSize - requestCount)
