@@ -6,7 +6,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "style": "prettier --config package.json  --write \"{src,test}/**/*.js\"",
-    "lint": "eslint -c package.json \"{src,test}/**/*.js\"",
+    "build": "rollup -c",
+    "lint": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix",
     "check": "npm run style && npm run lint",
     "test": "npm run check && npm run test:unit",
     "test:unit": "blue-tape \"test/**/**.spec.js\" | tap-nirvana",
@@ -19,33 +20,37 @@
     "report:open": "npm run report && open coverage/index.html",
     "release": "np"
   },
-  "main": "src/butter.js",
+  "main": "lib/main.js",
   "files": [
-    "src"
+    "lib"
   ],
+  "types": "lib/main.d.ts",
   "repository": {
     "type": "git",
     "url": "git@github.com:Nike-Inc/dynamo-butter.git"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.4.1",
+    "@aws-sdk/util-dynamodb": "^3.4.1"
+  },
   "devDependencies": {
-    "@kyeotic/eslint-config": "^1.0.2",
-    "aws-sdk": "^2.614.0",
-    "blue-tape": "^0.2.0",
-    "chokidar-cli": "^1.2.3",
-    "eslint": "^5.16.0",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "nock": "^11.8.2",
     "np": "^6.5.0",
     "nyc": "^15.0.0",
-    "prettier": "^1.19.1",
-    "sinon": "^8.1.1",
-    "tap-nirvana": "^1.1.0",
-    "tap-xunit": "^2.4.1"
+    "prettier": "^2.2.1",
+    "rollup": "^2.39.0",
+    "tslib": "^2.1.0",
+    "typescript": "^4.1.5"
   },
-  "peerDependencies": {},
   "prettier": {
     "tabWidth": 2,
     "semi": false,

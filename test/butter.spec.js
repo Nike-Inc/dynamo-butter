@@ -12,11 +12,11 @@ const Butter = require('../src/butter')
 
 let validConfig = {
   region: 'us-west-2',
-  endpoint: 'http://localhost:4567/'
+  endpoint: 'http://localhost:4567/',
 }
 const table = 'test-table'
 
-test('butter.up provides a wrapped client when config is valid', async t => {
+test('butter.up provides a wrapped client when config is valid', async (t) => {
   t.plan(5)
   let client = Butter.up(validConfig)
   t.equal(client.service.config.region, validConfig.region, 'region')
@@ -32,21 +32,21 @@ test('butter.up provides a wrapped client when config is valid', async t => {
   await result
 })
 
-test('butter.up provides a wrapped client when config contains creds', async t => {
+test('butter.up provides a wrapped client when config contains creds', async (t) => {
   t.plan(1)
   const credentials = {
     accessKeyId: 'a1',
     secretAccessKey: 'k1',
-    sessionToken: 'tok'
+    sessionToken: 'tok',
   }
   let client = Butter.up({
     ...validConfig,
-    credentials
+    credentials,
   })
   t.same(client.service.config.credentials, credentials, 'creds')
 })
 
-test('butter.up provides a wrapped client when given dynamo client', async t => {
+test('butter.up provides a wrapped client when given dynamo client', async (t) => {
   t.plan(5)
   const Dynamo = require('aws-sdk/clients/dynamodb')
   let dynamo = new Dynamo.DocumentClient(validConfig)
@@ -64,7 +64,7 @@ test('butter.up provides a wrapped client when given dynamo client', async t => 
   await result
 })
 
-test('butter.up defaults to dynamo https', async t => {
+test('butter.up defaults to dynamo https', async (t) => {
   t.plan(2)
   let client = Butter.up({ region: 'us-west-2' })
   t.equal(client.service.config.region, 'us-west-2', 'region')
@@ -75,29 +75,29 @@ test('butter.up defaults to dynamo https', async t => {
   )
 })
 
-test('butter.up requires config', async t => {
+test('butter.up requires config', async (t) => {
   t.plan(1)
   t.throws(() => Butter.up(), /dynamoClientOrConfig.+?required/)
 })
 
-test('butter.up requires region', async t => {
+test('butter.up requires region', async (t) => {
   t.plan(1)
   t.throws(() => Butter.up({}), /region/)
 })
 
 // QoL Methods
 //
-test('batchWriteAll sends 30 items in two pages', async t => {
+test('batchWriteAll sends 30 items in two pages', async (t) => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(30)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
-    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+    RequestItems: { [table]: data.map((c) => ({ PutRequest: { Item: c } })) },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 25, 'page size')
       return [200, {}]
@@ -105,30 +105,30 @@ test('batchWriteAll sends 30 items in two pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 5, 'page size')
       return [200, {}]
     })
-  return client.batchWriteAll(deleteParams).catch(e => {
+  return client.batchWriteAll(deleteParams).catch((e) => {
     console.error(e)
     throw e
   })
 })
 
-test('batchWriteAll allows custom page size', async t => {
+test('batchWriteAll allows custom page size', async (t) => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
     PageSize: 10,
-    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+    RequestItems: { [table]: data.map((c) => ({ PutRequest: { Item: c } })) },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
     .times(2)
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 10, 'page size')
       return [200, {}]
@@ -136,20 +136,20 @@ test('batchWriteAll allows custom page size', async t => {
   return client.batchWriteAll(deleteParams)
 })
 
-test('batchWriteAll handles multiple tables', async t => {
+test('batchWriteAll handles multiple tables', async (t) => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
     RequestItems: {
-      [table]: data.map(c => ({ PutRequest: { Item: c } })),
-      [table + '2']: data.map(c => ({ PutRequest: { Item: c } }))
-    }
+      [table]: data.map((c) => ({ PutRequest: { Item: c } })),
+      [table + '2']: data.map((c) => ({ PutRequest: { Item: c } })),
+    },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 20, 'page size')
       t.equal(body.RequestItems[table + 2].length, 5, 'page size')
@@ -158,42 +158,42 @@ test('batchWriteAll handles multiple tables', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table + 2].length, 15, 'page size')
       return [200, {}]
     })
-  return client.batchWriteAll(deleteParams).catch(e => {
+  return client.batchWriteAll(deleteParams).catch((e) => {
     console.error(e)
     throw e
   })
 })
 
-test('batchWriteAll retries unprocessed items', async t => {
+test('batchWriteAll retries unprocessed items', async (t) => {
   t.plan(2)
   let client = Butter.up(validConfig)
   let data = [...Array(25)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
-    RequestItems: { [table]: data.map(c => ({ PutRequest: { Item: c } })) }
+    RequestItems: { [table]: data.map((c) => ({ PutRequest: { Item: c } })) },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 25, 'page size')
       return {
         UnprocessedItems: {
           [table]: data
             .slice(20)
-            .map(c => ({ PutRequest: { Item: awsConverter.marshall(c) } }))
-        }
+            .map((c) => ({ PutRequest: { Item: awsConverter.marshall(c) } })),
+        },
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].length, 5, 'retried')
       return {}
@@ -201,7 +201,7 @@ test('batchWriteAll retries unprocessed items', async t => {
   return client.batchWriteAll(deleteParams)
 })
 
-test('batchGetAll sends 30 items in two pages', async t => {
+test('batchGetAll sends 30 items in two pages', async (t) => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(30)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
@@ -209,110 +209,110 @@ test('batchGetAll sends 30 items in two pages', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 25, 'page size')
       return {
-        Responses: { [table]: data.slice(0, 25).map(awsConverter.marshall) }
+        Responses: { [table]: data.slice(0, 25).map(awsConverter.marshall) },
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 5, 'page size')
       return {
-        Responses: { [table]: data.slice(25).map(awsConverter.marshall) }
+        Responses: { [table]: data.slice(25).map(awsConverter.marshall) },
       }
     })
 
   return client
     .batchGetAll(deleteParams)
-    .then(result => {
+    .then((result) => {
       t.deepEqual(data, result.Responses[table], 'returned all rows')
     })
-    .catch(e => {
+    .catch((e) => {
       console.error(e)
       throw e
     })
 })
 
-test('batchGetAll allows custom page size', async t => {
+test('batchGetAll allows custom page size', async (t) => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
     PageSize: 10,
-    RequestItems: { [table]: { Keys: data.slice(0) } }
+    RequestItems: { [table]: { Keys: data.slice(0) } },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 10, 'page size')
       return {
-        Responses: { [table]: data.slice(0, 10).map(awsConverter.marshall) }
+        Responses: { [table]: data.slice(0, 10).map(awsConverter.marshall) },
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 10, 'page size')
       return {
-        Responses: { [table]: data.slice(10).map(awsConverter.marshall) }
+        Responses: { [table]: data.slice(10).map(awsConverter.marshall) },
       }
     })
 
-  return client.batchGetAll(deleteParams).then(result => {
+  return client.batchGetAll(deleteParams).then((result) => {
     t.deepEqual(data, result.Responses[table], 'returned all rows')
   })
 })
 
-test('batchGetAll handles multiple tables', async t => {
+test('batchGetAll handles multiple tables', async (t) => {
   t.plan(5)
   let client = Butter.up(validConfig)
   let data = [...Array(20)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
   let deleteParams = {
     RequestItems: {
       [table]: { Keys: data.slice(0) },
-      [table + '2']: { Keys: data.slice(0) }
-    }
+      [table + '2']: { Keys: data.slice(0) },
+    },
   }
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 20, 'page size')
       t.equal(body.RequestItems[table + 2].Keys.length, 5, 'page size')
       return {
         Responses: {
           [table]: data.slice(0).map(awsConverter.marshall),
-          [table + '2']: data.slice(0, 5).map(awsConverter.marshall)
-        }
+          [table + '2']: data.slice(0, 5).map(awsConverter.marshall),
+        },
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table + 2].Keys.length, 15, 'page size')
       return {
-        Responses: { [table + '2']: data.slice(5).map(awsConverter.marshall) }
+        Responses: { [table + '2']: data.slice(5).map(awsConverter.marshall) },
       }
     })
-  return client.batchGetAll(deleteParams).then(result => {
+  return client.batchGetAll(deleteParams).then((result) => {
     t.deepEqual(data, result.Responses[table], 'returned table rows')
     t.deepEqual(data, result.Responses[table + '2'], 'returned table2 rows')
   })
 })
 
-test('batchGetAll retries unprocessed items', async t => {
+test('batchGetAll retries unprocessed items', async (t) => {
   t.plan(3)
   let client = Butter.up(validConfig)
   let data = [...Array(25)].map((_, i) => ({ clientId: `test_delete_me_${i}` }))
@@ -320,56 +320,56 @@ test('batchGetAll retries unprocessed items', async t => {
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 25, 'page size')
       return {
         Responses: { [table]: data.slice(0, 20).map(awsConverter.marshall) },
         UnprocessedKeys: {
-          [table]: { Keys: data.slice(20).map(awsConverter.marshall) }
-        }
+          [table]: { Keys: data.slice(20).map(awsConverter.marshall) },
+        },
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function(uri, requestBody) {
+    .reply(200, function (uri, requestBody) {
       let body = JSON.parse(requestBody)
       t.equal(body.RequestItems[table].Keys.length, 5, 'retried')
       return {
-        Responses: { [table]: data.slice(20).map(awsConverter.marshall) }
+        Responses: { [table]: data.slice(20).map(awsConverter.marshall) },
       }
     })
-  return client.batchGetAll(deleteParams).then(result => {
+  return client.batchGetAll(deleteParams).then((result) => {
     t.deepEqual(data, result.Responses[table], 'returned all rows')
   })
 })
 
-test('queryAll gets multiple pages', async t => {
+test('queryAll gets multiple pages', async (t) => {
   t.plan(4)
   let client = Butter.up(validConfig)
   let data = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function() {
+    .reply(200, function () {
       t.pass('called')
       return {
         Count: 2,
         ScannedCount: 100,
         LastEvaluatedKey: { id: 2 },
-        Items: data.slice(0, 2).map(awsConverter.marshall)
+        Items: data.slice(0, 2).map(awsConverter.marshall),
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function() {
+    .reply(200, function () {
       t.pass('called')
       return {
         Count: 2,
         ScannedCount: 100,
-        Items: data.slice(2).map(awsConverter.marshall)
+        Items: data.slice(2).map(awsConverter.marshall),
       }
     })
   let result = await client.queryAll({ TableName: table })
@@ -377,31 +377,31 @@ test('queryAll gets multiple pages', async t => {
   t.same(result.Items, data, 'matches')
 })
 
-test('scanAll gets multiple pages', async t => {
+test('scanAll gets multiple pages', async (t) => {
   t.plan(4)
   let client = Butter.up(validConfig)
   let data = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function() {
+    .reply(200, function () {
       t.pass('called')
       return {
         Count: 2,
         ScannedCount: 100,
         LastEvaluatedKey: { id: 2 },
-        Items: data.slice(0, 2).map(awsConverter.marshall)
+        Items: data.slice(0, 2).map(awsConverter.marshall),
       }
     })
   nock(/localhost/)
     .replyContentLength()
     .post('/')
-    .reply(200, function() {
+    .reply(200, function () {
       t.pass('called')
       return {
         Count: 2,
         ScannedCount: 100,
-        Items: data.slice(2).map(awsConverter.marshall)
+        Items: data.slice(2).map(awsConverter.marshall),
       }
     })
   let result = await client.scanAll({ TableName: table })

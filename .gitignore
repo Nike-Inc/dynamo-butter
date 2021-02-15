@@ -8,3 +8,4 @@ coverage/
 .history
 .vscode
 /xunit.xml
+lib/

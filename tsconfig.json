@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["es2019", "dom"],
+    "module": "esnext",
+    "target": "es2019",
+    "declaration": true,
+    "strict": true,
+    "outDir": "lib",
+    "noUnusedLocals": true,
+    "rootDir": "src",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}
