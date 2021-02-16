@@ -1,7 +1,8 @@
-import { describe, expect, it } from '@jest/globals'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { marshall } from '@aws-sdk/util-dynamodb'
-import { up } from '../src/butter'
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { describe, expect, it } = require('@jest/globals')
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb')
+const { marshall } = require('@aws-sdk/util-dynamodb')
+const { up } = require('../src/butter')
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nock = require('nock')
@@ -181,9 +182,7 @@ describe('client', () => {
         expect(body.RequestItems[tableName].length).toBe(25)
         return {
           UnprocessedItems: {
-            [tableName]: data
-              .slice(20)
-              .map((c) => ({ PutRequest: { Item: marshall(c) } })),
+            [tableName]: data.slice(20).map((c) => ({ PutRequest: { Item: marshall(c) } })),
           },
         }
       })

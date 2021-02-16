@@ -1,10 +1,7 @@
 import { marshall } from '@aws-sdk/util-dynamodb'
 export { unmarshall } from '@aws-sdk/util-dynamodb'
 
-import type {
-  NativeAttributeValue,
-  marshallOptions,
-} from '@aws-sdk/util-dynamodb'
+import type { NativeAttributeValue, marshallOptions } from '@aws-sdk/util-dynamodb'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 import type {
   QueryInput,
@@ -42,26 +39,21 @@ export interface NativeItem {
 
 export { marshall }
 
-export function marshalKeys<
-  T extends Marshallable,
-  K extends T,
-  S extends keyof T
->(params: K, keys: S[], options?: marshallOptions): T {
+export function marshalKeys<T extends Marshallable, K extends T, S extends keyof T>(
+  params: K,
+  keys: S[],
+  options?: marshallOptions
+): T {
   return keys.reduce(
     (output: T, key: S): T => {
-      output[key] = params[key]
-        ? marshallValue(params[key], options)
-        : undefined
+      output[key] = params[key] ? marshallValue(params[key], options) : undefined
       return output
     },
     { ...params } as T
   ) as T
 }
 
-function marshallValue(
-  value: unknown,
-  options?: marshallOptions
-): NativeAttributeValue {
+function marshallValue(value: unknown, options?: marshallOptions): NativeAttributeValue {
   return Array.isArray(value)
     ? value.map((v) => marshall(v, options))
     : marshall(value as Marshallable, options)
@@ -76,8 +68,7 @@ export interface QueryInputNative
   ExclusiveStartKey?: NativeItem
 }
 
-export interface QueryOutputNative
-  extends Omit<QueryOutput, 'Items' | 'LastEvaluatedKey'> {
+export interface QueryOutputNative extends Omit<QueryOutput, 'Items' | 'LastEvaluatedKey'> {
   Items?: NativeItem[]
   LastEvaluatedKey?: NativeItem
 }
@@ -88,8 +79,7 @@ export interface ScanInputNative
   ExclusiveStartKey?: NativeItem
 }
 
-export interface ScanOutputNative
-  extends Omit<ScanOutput, 'Items' | 'LastEvaluatedKey'> {
+export interface ScanOutputNative extends Omit<ScanOutput, 'Items' | 'LastEvaluatedKey'> {
   Items?: NativeItem[]
   LastEvaluatedKey?: NativeItem
 }
@@ -112,8 +102,7 @@ export interface PutItemOutputNative extends Omit<PutItemOutput, 'Attributes'> {
   Attributes?: NativeItem
 }
 
-export interface AttributeValueUpdateNative
-  extends Omit<AttributeValueUpdate, 'Value'> {
+export interface AttributeValueUpdateNative extends Omit<AttributeValueUpdate, 'Value'> {
   Value?: NativeAttributeValue
 }
 
@@ -124,42 +113,32 @@ export interface ExpectedAttributeValueNative
 }
 
 export interface UpdateItemInputNative
-  extends Omit<
-    UpdateItemInput,
-    'Key' | 'ExpressionAttributeValues' | 'AttributeUpdates'
-  > {
+  extends Omit<UpdateItemInput, 'Key' | 'ExpressionAttributeValues' | 'AttributeUpdates'> {
   Key: NativeItem | undefined
   ExpressionAttributeValues?: NativeItem
   AttributeUpdates?: AttributeValueUpdateNative
 }
 
-export interface UpdateItemOutputNative
-  extends Omit<UpdateItemOutput, 'Attributes'> {
+export interface UpdateItemOutputNative extends Omit<UpdateItemOutput, 'Attributes'> {
   Attributes?: NativeItem
 }
 
 export interface DeleteItemInputNative
-  extends Omit<
-    DeleteItemInput,
-    'Key' | 'Expected' | 'ExpressionAttributeValues'
-  > {
+  extends Omit<DeleteItemInput, 'Key' | 'Expected' | 'ExpressionAttributeValues'> {
   Key: NativeItem | undefined
   Expected?: ExpectedAttributeValueNative
   ExpressionAttributeValues?: NativeItem
 }
 
-export interface DeleteItemOutputNative
-  extends Omit<DeleteItemOutput, 'Attributes'> {
+export interface DeleteItemOutputNative extends Omit<DeleteItemOutput, 'Attributes'> {
   Attributes?: NativeItem
 }
 
-export interface KeysAndAttributesNative
-  extends Omit<KeysAndAttributes, 'Keys'> {
+export interface KeysAndAttributesNative extends Omit<KeysAndAttributes, 'Keys'> {
   Keys: NativeItem[] | undefined
 }
 
-export interface BatchGetItemInputNative
-  extends Omit<BatchGetItemInput, 'RequestItems'> {
+export interface BatchGetItemInputNative extends Omit<BatchGetItemInput, 'RequestItems'> {
   RequestItems:
     | {
         [key: string]: KeysAndAttributesNative
@@ -190,8 +169,7 @@ export interface WriteRequestNative {
   DeleteRequest?: DeleteRequestNative
 }
 
-export interface BatchWriteItemInputNative
-  extends Omit<BatchWriteItemInput, 'RequestItems'> {
+export interface BatchWriteItemInputNative extends Omit<BatchWriteItemInput, 'RequestItems'> {
   RequestItems:
     | {
         [key: string]: WriteRequestNative[]
@@ -199,8 +177,7 @@ export interface BatchWriteItemInputNative
     | undefined
 }
 
-export interface BatchWriteItemOutputNative
-  extends Omit<BatchWriteItemOutput, 'UnprocessedItems'> {
+export interface BatchWriteItemOutputNative extends Omit<BatchWriteItemOutput, 'UnprocessedItems'> {
   UnprocessedItems?: {
     [key: string]: WriteRequestNative[]
   }

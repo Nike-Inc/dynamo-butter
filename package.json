@@ -5,7 +5,7 @@
   "version": "1.2.0",
   "license": "Apache-2.0",
   "scripts": {
-    "style": "prettier --config package.json  --write \"{src,test}/**/*.ts\"",
+    "style": "prettier --write \"{src,test}/**/*.ts\"",
     "build": "rollup -c",
     "lint": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix",
     "check": "npm run style && npm run lint",
