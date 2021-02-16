@@ -47,16 +47,24 @@ export function marshalKeys<
   K extends T,
   S extends keyof T
 >(params: K, keys: S[], options?: marshallOptions): T {
-  // return (keys as unknown[]).reduce(
   return keys.reduce(
     (output: T, key: S): T => {
       output[key] = params[key]
-        ? (marshall(params[key], options) as NativeAttributeValue)
+        ? marshallValue(params[key], options)
         : undefined
       return output
     },
     { ...params } as T
   ) as T
+}
+
+function marshallValue(
+  value: unknown,
+  options?: marshallOptions
+): NativeAttributeValue {
+  return Array.isArray(value)
+    ? value.map((v) => marshall(v, options))
+    : marshall(value as Marshallable, options)
 }
 
 // Re-Marshalled Types

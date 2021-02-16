@@ -100,9 +100,16 @@ class ButterClient {
 
   async query(params: QueryInputNative): Promise<QueryOutputNative> {
     const response = await this._dynamo.send(
-      new QueryCommand(this.marshall(params, ['ExpressionAttributeValues']))
+      new QueryCommand(
+        this.marshall(params, [
+          'ExpressionAttributeValues',
+          'ExclusiveStartKey',
+        ])
+      )
     )
     response.Items = response.Items && response.Items.map(this.unmarshall)
+    response.LastEvaluatedKey =
+      response.LastEvaluatedKey && this.unmarshall(response.LastEvaluatedKey)
     return response
   }
 
@@ -152,6 +159,8 @@ class ButterClient {
       )
     )
     response.Items = response.Items && response.Items.map(this.unmarshall)
+    response.LastEvaluatedKey =
+      response.LastEvaluatedKey && this.unmarshall(response.LastEvaluatedKey)
     return response
   }
 
@@ -317,10 +326,10 @@ class ButterClient {
           : null
       if (!unprocessed) continue
       eachObj(unprocessed, (table: string, items: KeysAndAttributes) => {
-        requestPool?.[table].Keys?.push(
-          // batchGet unmarshalls, so we have to re-marshal... this marshalling nonsense :facepalm:
-          ...(items.Keys as NativeItem[]).map(this.unmarshall)
-        )
+        const processed = this.marshall(items, ['Keys']) as KeysAndAttributes
+        if (!processed.Keys) return
+        // batchGet unmarshalls, so we have to re-marshal... this marshalling nonsense :facepalm:
+        requestPool?.[table].Keys?.push(...processed.Keys)
       })
     }
 
