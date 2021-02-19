@@ -87,8 +87,8 @@ class ButterClient {
 
   marshall<T extends Marshallable, K extends T, S extends keyof T>(item: K, keys: S[]): T {
     return marshalKeys<T, K, S>(item, keys, {
-      convertEmptyValues: this._options.convertEmptyValues,
-      removeUndefinedValues: this._options.removeUndefinedValues,
+      convertEmptyValues: this._options.convertEmptyValues ?? true,
+      removeUndefinedValues: this._options.removeUndefinedValues ?? true,
     })
   }
 
