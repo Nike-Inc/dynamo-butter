@@ -23,7 +23,6 @@
       "require": "./dist/cjs/index.js"
     }
   },
-  "main": "lib/main.js",
   "files": [
     "lib"
   ],
