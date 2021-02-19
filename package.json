@@ -23,6 +23,7 @@
       "require": "./dist/cjs/main.js"
     }
   },
+  "types": "dist/mjs/main.d.ts",
   "files": [
     "dist"
   ],
