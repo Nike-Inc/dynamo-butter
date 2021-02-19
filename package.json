@@ -2,7 +2,7 @@
   "name": "dynamo-butter",
   "description": "A dynamo client enhancer",
   "author": "Tim Kye",
-  "version": "2.0.0-5",
+  "version": "2.0.0-6",
   "license": "Apache-2.0",
   "scripts": {
     "style": "prettier --write \"{src,test}/**/*.ts\"",
