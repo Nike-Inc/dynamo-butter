@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "test:ci": "npm run test",
     "test:coverage": "jest && open coverage/index.html",
-    "release": "np"
+    "release": "npm run build && np"
   },
   "main": "lib/main.js",
   "files": [
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.4.1",
+    "@aws-sdk/node-http-handler": "^3.5.0",
     "@aws-sdk/util-dynamodb": "^3.4.1"
   },
   "devDependencies": {

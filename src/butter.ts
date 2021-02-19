@@ -55,6 +55,7 @@ export type DynamoButterClient = ButterClient
 export interface ButterClientOptions {
   convertEmptyValues?: boolean
   removeUndefinedValues?: boolean
+  useKeepAlive?: boolean
 }
 
 export interface QueryAllInput extends QueryInputNative {
@@ -357,6 +358,7 @@ function up(
   butterOptions: ButterClientOptions = {
     convertEmptyValues: true,
     removeUndefinedValues: true,
+    useKeepAlive: true,
   }
 ): DynamoButterClient {
   if (!dynamoClientOrConfig) throw new Error('"dynamoClientOrConfig" parameter is required')
@@ -368,7 +370,21 @@ function up(
   } else {
     if (!(dynamoClientOrConfig as DynamoDBClientConfig).region)
       throw new Error('"region" is required when providing a configuration parameter')
-    dynamo = new DynamoDBClient(dynamoClientOrConfig)
+    if (butterOptions?.useKeepAlive !== false) {
+      dynamo = new DynamoDBClient(dynamoClientOrConfig)
+    } else {
+      // Load these lazily to avoid performance cost on the happy path
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Agent } = require('https')
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { NodeHttpHandler } = require('@aws-sdk/node-http-handler')
+      dynamo = new DynamoDBClient({
+        ...dynamoClientOrConfig,
+        requestHandler: new NodeHttpHandler({
+          httpsAgent: new Agent({ keepAlive: false }),
+        }),
+      })
+    }
   }
 
   const client = new ButterClient(dynamo, butterOptions)

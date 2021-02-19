@@ -7,6 +7,6 @@ export default {
     dir: 'lib',
     format: 'cjs',
   },
-  external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
+  // external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
   plugins: [typescript()],
 }
