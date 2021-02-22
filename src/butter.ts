@@ -46,7 +46,6 @@ import type {
   PutRequestNative,
   DeleteRequestNative,
   WriteRequestNative,
-  marshallOptions,
 } from './marshalling'
 
 export type { DynamoDBClient, DynamoDBClientConfig }
