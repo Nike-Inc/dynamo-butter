@@ -46,6 +46,7 @@ import type {
   PutRequestNative,
   DeleteRequestNative,
   WriteRequestNative,
+  marshallOptions,
 } from './marshalling'
 
 export type { DynamoDBClient, DynamoDBClientConfig }
@@ -55,6 +56,7 @@ export type DynamoButterClient = ButterClient
 export interface ButterClientOptions {
   convertEmptyValues?: boolean
   removeUndefinedValues?: boolean
+  convertClassInstanceToMap?: boolean
   useKeepAlive?: boolean
 }
 
@@ -89,6 +91,7 @@ class ButterClient {
     return marshalKeys<T, K, S>(item, keys, {
       convertEmptyValues: this._options.convertEmptyValues ?? true,
       removeUndefinedValues: this._options.removeUndefinedValues ?? true,
+      convertClassInstanceToMap: this._options.convertClassInstanceToMap ?? true,
     })
   }
 

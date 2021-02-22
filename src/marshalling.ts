@@ -25,6 +25,8 @@ import type {
   KeysAndAttributes,
 } from '@aws-sdk/client-dynamodb'
 
+export { marshallOptions }
+
 export interface Marshallable {
   [key: string]: unknown
 }
