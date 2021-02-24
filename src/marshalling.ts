@@ -128,7 +128,9 @@ export interface UpdateItemOutputNative extends Omit<UpdateItemOutput, 'Attribut
 export interface DeleteItemInputNative
   extends Omit<DeleteItemInput, 'Key' | 'Expected' | 'ExpressionAttributeValues'> {
   Key: NativeItem | undefined
-  Expected?: ExpectedAttributeValueNative
+  Expected?: {
+    [key: string]: ExpectedAttributeValueNative
+  }
   ExpressionAttributeValues?: NativeItem
 }
 

@@ -10,6 +10,7 @@ import {
   WriteRequest,
   KeysAndAttributes,
   AttributeValueUpdate,
+  DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import type {
   DynamoDBClientConfig,
@@ -220,8 +221,8 @@ class ButterClient {
     return response
   }
   async delete(params: DeleteItemInputNative): Promise<DeleteItemOutputNative> {
-    const response = await this._dynamo.send(new GetItemCommand(this.marshall(params, ['Key'])))
-    response.Item = response.Item && this.unmarshall(response.Item)
+    const response = await this._dynamo.send(new DeleteItemCommand(this.marshall(params, ['Key'])))
+    response.Attributes = response.Attributes && this.unmarshall(response.Attributes)
     return response
   }
 
