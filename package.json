@@ -2,54 +2,58 @@
   "name": "dynamo-butter",
   "description": "A dynamo client enhancer",
   "author": "Tim Kye",
-  "version": "1.2.0",
+  "version": "2.0.0-10",
   "license": "Apache-2.0",
   "scripts": {
-    "style": "prettier --config package.json  --write \"{src,test}/**/*.js\"",
-    "lint": "eslint -c package.json \"{src,test}/**/*.js\"",
+    "style": "prettier --write \"{src,test}/**/*.ts\"",
+    "build": "run-s build:clean build:types build:package",
+    "build:types": "tsc",
+    "build:package": "rollup -c",
+    "build:clean": "rimraf lib",
+    "lint": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix",
     "check": "npm run style && npm run lint",
     "test": "npm run check && npm run test:unit",
-    "test:unit": "blue-tape \"test/**/**.spec.js\" | tap-nirvana",
-    "test:watch": "clear && npm run test:unit -s & chokidar 'src/**/*.js' 'test/**/*.spec.js' --polling -c \"clear && npm run test:unit -s\"",
-    "test:ci": "npm run check && blue-tape test/**/**.spec.js | tap-xunit > xunit.xml && npm run test:coverage && npm run report:ci",
-    "test:coverage": "nyc --check-coverage --lines 90 npm run test:unit && npm run report",
-    "test:coverage:open": "npm run test:coverage && open coverage/index.html",
-    "report": "nyc report --reporter=html",
-    "report:ci": "npm run report",
-    "report:open": "npm run report && open coverage/index.html",
-    "release": "np"
+    "test:unit": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "npm run test",
+    "test:coverage": "jest && open coverage/index.html",
+    "release": "npm run build && np"
   },
-  "main": "src/butter.js",
+  "main": "lib/main.js",
+  "module": "lib/module.js",
+  "types": "lib/types/main.d.ts",
   "files": [
-    "src"
+    "lib"
   ],
   "repository": {
     "type": "git",
     "url": "git@github.com:Nike-Inc/dynamo-butter.git"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=12.9"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.4.1",
+    "@aws-sdk/node-http-handler": "^3.5.0",
+    "@aws-sdk/util-dynamodb": "^3.4.1"
+  },
   "devDependencies": {
-    "@kyeotic/eslint-config": "^1.0.2",
-    "aws-sdk": "^2.614.0",
-    "blue-tape": "^0.2.0",
-    "chokidar-cli": "^1.2.3",
-    "eslint": "^5.16.0",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@types/jest": "^26.0.20",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^26.6.3",
     "nock": "^11.8.2",
     "np": "^6.5.0",
-    "nyc": "^15.0.0",
-    "prettier": "^1.19.1",
-    "sinon": "^8.1.1",
-    "tap-nirvana": "^1.1.0",
-    "tap-xunit": "^2.4.1"
-  },
-  "peerDependencies": {},
-  "prettier": {
-    "tabWidth": 2,
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 80
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "rimraf": "^2.6.3",
+    "rollup": "^2.39.0",
+    "ts-jest": "^26.5.1",
+    "tslib": "^2.1.0",
+    "typescript": "^4.1.5"
   }
 }
